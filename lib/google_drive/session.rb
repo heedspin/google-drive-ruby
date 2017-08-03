@@ -482,6 +482,8 @@ module GoogleDrive
           fail((response.code == '401' ? AuthenticationError : ResponseCodeError)
                  .new(response.code, response.body, method, url))
         end
+        filename = url.gsub('/', '_')
+        ::File.open("/tmp/#{filename}.xml", 'w+') { |o| o.write(response.body) }
         return convert_response(response, response_type)
       end
     end
