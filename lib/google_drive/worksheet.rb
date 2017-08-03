@@ -24,7 +24,9 @@ module GoogleDrive
       @cells = nil
       @input_values = nil
       @numeric_values = nil
-      @modified = Set.new
+      # LXD: Use Array instead of Set
+      # @modified = Set.new
+      @modified = []
       @list = nil
     end
 
@@ -116,7 +118,9 @@ module GoogleDrive
       @cells[[row, col]] = value
       @input_values[[row, col]] = value
       @numeric_values[[row, col]] = nil
-      @modified.add([row, col])
+      # LXD: Array instead of Set.
+      # @modified.add([row, col])
+      @modified.push([row, col])
       self.max_rows = row if row > @max_rows
       self.max_cols = col if col > @max_cols
       if value.empty?
@@ -300,7 +304,7 @@ module GoogleDrive
       if @meta_modified
 
         edit_url = @worksheet_feed_entry.css("link[rel='edit']")[0]['href']
-        xml = <<-"EOS"
+        xml = <<-EOS
               <entry xmlns='http://www.w3.org/2005/Atom'
                      xmlns:gs='http://schemas.google.com/spreadsheets/2006'>
                 <title>#{h(title)}</title>
@@ -342,7 +346,8 @@ module GoogleDrive
                     xmlns:gs="http://schemas.google.com/spreadsheets/2006">
                 <id>#{h(cells_feed_url)}</id>
             EOS
-        @modified.each do |row, col|
+        # LXD: Add uniq because of Array instead of Set.
+        @modified.uniq.each do |row, col|
           value     = @cells[[row, col]]
           entry     = cell_entries[[row, col]]
           id        = entry.css('id').text
@@ -363,7 +368,7 @@ module GoogleDrive
                 </entry>
           EOS
         end
-        xml << <<-"EOS"
+        xml << <<-EOS
           </feed>
         EOS
 
